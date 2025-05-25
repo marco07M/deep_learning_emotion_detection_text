@@ -1,22 +1,40 @@
+from sklearn.preprocessing import LabelEncoder
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import torch
 import joblib
 
-# 1. Modell laden
-model = joblib.load('1_model.pkl')
 
-# 2. Texte, die du klassifizieren möchtest
-neue_texte = [
-    "This product is amazing! I love it.",
-    "im feeling quite sad and sorry for myself but ill snap out of it soon",
-    "This is the worst experience I've ever had.",
-    "I hate this product, it doesn't work at all.",
-]
+# Modell & Tokenizer laden
+model_path = "./model_output"
+tokenizer = AutoTokenizer.from_pretrained(model_path)
+model = AutoModelForSequenceClassification.from_pretrained(model_path)
+model.eval()
 
-# 3. Vorhersagen
-vorhersagen = model.predict(neue_texte)
-wahrscheinlichkeiten = model.predict_proba(neue_texte)
+# Label-Encoder laden
+le = joblib.load(f"{model_path}/label_encoder.joblib")
 
-for text, label, probs in zip(neue_texte, vorhersagen, wahrscheinlichkeiten):
-    print(f"Text: {text!r}")
-    print(f"→ Vorhergesagte Klasse: {label}")
-    print(f"→ Klassen-Wahrscheinlichkeiten: {dict(zip(model.classes_, probs))}")
-    print()
+# Falls GPU verfügbar → auf GPU verschieben
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
+
+def predict(text):
+    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True).to(device)
+    with torch.no_grad():
+        outputs = model(**inputs)
+        logits = outputs.logits
+        prediction = torch.argmax(logits, dim=1).cpu().numpy()
+        label = le.inverse_transform(prediction)[0]
+    return label
+
+print(predict("I love this movie!"))        # → Erwartet: 'joy' oder 'love'
+print(predict("I'm so angry right now...")) # → Erwartet: 'anger'
+print(predict("This is a neutral statement.")) # → Erwartet: 'neutral'
+print(predict("I do not like this at all.")) # → Erwartet: 'sadness' oder 'fear'
+print(predict("This is a great day!"))     # → Erwartet: 'joy' oder 'love'
+print(predict("I hate this!"))   # → Erwartet: 'anger' oder 'sadness'
+print(predict("I am not sure about this.")) # → Erwartet: 'neutral'
+print(predict("I am very happy!")) # → Erwartet: 'joy' oder 'love'
+print(predict("I am feeling sad.")) # → Erwartet: 'sadness'
+print(predict("I am scared.")) # → Erwartet: 'fear'
+print(predict("I never though it will be like this!")) # → Erwartet: 'joy' oder 'love'
+print(predict("I am surprised.")) # → Erwartet: 'sadness'
