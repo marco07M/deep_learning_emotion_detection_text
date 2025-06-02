@@ -15,6 +15,11 @@ DATA_PATH = 'data/all_balanced.txt'  # ggf. anpassen
 MODEL_DIR = 'test2'
 os.makedirs(MODEL_DIR, exist_ok=True)
 
+PATIENCE = 5
+best_test_acc = 0
+epochs_without_improvement = 0
+
+
 # 1. Daten laden
 df = pd.read_csv(
     DATA_PATH,
@@ -48,15 +53,28 @@ classes = np.unique(y_train)
 for epoch in range(1, EPOCHS + 1):
     clf.partial_fit(X_train_vec, y_train, classes=classes)
     train_score = clf.score(X_train_vec, y_train)
-    test_score  = clf.score(X_test_vec, y_test)
+    test_score = clf.score(X_test_vec, y_test)
     train_acc.append(train_score)
     test_acc.append(test_score)
+
     print(f"Epoche {epoch}/{EPOCHS} — Train: {train_score:.3f}, Test: {test_score:.3f}")
+
+    # Early Stopping prüfen
+    if test_score > best_test_acc:
+        best_test_acc = test_score
+        epochs_without_improvement = 0
+    else:
+        epochs_without_improvement += 1
+        if epochs_without_improvement >= PATIENCE:
+            print(f"⏹️ Frühes Stoppen nach {epoch} Epochen (keine Verbesserung in {PATIENCE} Epochen).")
+            break
 
 # 6. Grafik erstellen
 plt.figure()
-plt.plot(range(1, EPOCHS + 1), train_acc, label='Train accuracy')
-plt.plot(range(1, EPOCHS + 1), test_acc,  label='Test accuracy')
+epochs_ran = len(train_acc)
+plt.plot(range(1, epochs_ran + 1), train_acc, label='Train accuracy')
+plt.plot(range(1, epochs_ran + 1), test_acc,  label='Test accuracy')
+
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.title('Genauigkeit pro Epoche (SGDClassifier)')
