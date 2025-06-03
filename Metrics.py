@@ -6,8 +6,8 @@ evaluate_metrics_from_existing_model.py
 
 Dieses Skript lädt:
   - den balancierten Datensatz (data/all_balanced.txt),
-  - das gespeicherte SGDClassifier-Modell (test2/sgd_classifier.joblib) und
-  - den gespeicherten CountVectorizer (test2/vectorizer.joblib)
+  - das gespeicherte SGDClassifier-Modell (model/sgd_classifier.joblib) und
+  - den gespeicherten CountVectorizer (model/vectorizer.joblib)
 
 Anschließend wird auf dem Testset (20 % stratified split) folgendes berechnet und ausgegeben:
   1. Gesamt-Accuracy
@@ -18,7 +18,7 @@ Anschließend wird auf dem Testset (20 % stratified split) folgendes berechnet u
 Voraussetzungen:
   - Python 3.x
   - pandas, numpy, scikit-learn, matplotlib, joblib installiert
-  - Das Verzeichnis `test2/` enthält `sgd_classifier.joblib` und `vectorizer.joblib`
+  - Das Verzeichnis `model/` enthält `sgd_classifier.joblib` und `vectorizer.joblib`
   - Das Verzeichnis `data/` enthält `all_balanced.txt`
 """
 
@@ -44,7 +44,7 @@ from sklearn.metrics import (
 DATA_PATH = os.path.join("data", "all_balanced.txt")
 
 # Verzeichnis, in dem das Modell und der Vektorisierer gespeichert sind
-MODEL_DIR = "test2"
+MODEL_DIR = "model"
 MODEL_PATH = os.path.join(MODEL_DIR, "sgd_classifier.joblib")
 VECTORIZER_PATH = os.path.join(MODEL_DIR, "vectorizer.joblib")
 

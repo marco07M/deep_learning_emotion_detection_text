@@ -1,7 +1,7 @@
 import joblib
 
 # 1. Modell und Vektorisierer laden
-MODEL_DIR = "test2"  # Pfad zum Verzeichnis, in dem sgd_classifier.joblib und vectorizer.joblib liegen
+MODEL_DIR = "model"  # Pfad zum Verzeichnis, in dem sgd_classifier.joblib und vectorizer.joblib liegen
 vectorizer = joblib.load(f"{MODEL_DIR}/vectorizer.joblib")
 clf        = joblib.load(f"{MODEL_DIR}/sgd_classifier.joblib")
 

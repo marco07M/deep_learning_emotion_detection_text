@@ -12,7 +12,7 @@ import joblib
 
 # Pfad zu deinen Daten und Speicherort
 DATA_PATH = 'data/all_balanced.txt'  # ggf. anpassen
-MODEL_DIR = 'test2'
+MODEL_DIR = 'model'
 os.makedirs(MODEL_DIR, exist_ok=True)
 
 PATIENCE = 5
